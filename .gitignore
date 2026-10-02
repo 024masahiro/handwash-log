@@ -5,3 +5,8 @@ dist/
 *.tar.gz
 .env
 pages-dist/
+firebase-web.json
+.firebase/
+*-debug.log
+private-migration/
+*-service-account.json

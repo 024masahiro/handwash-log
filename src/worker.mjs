@@ -74,6 +74,7 @@ async function removeAccount(db,id) {
 const app = {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if(env.HANDWASH_MIGRATION_FREEZE==='1'&&url.pathname.startsWith('/api/')&&!['GET','HEAD','OPTIONS'].includes(request.method)&&!['/api/auth/login','/api/auth/logout'].includes(url.pathname))return json({error:'保存先を移行中です。記録・登録・変更・削除を一時停止しています。切り替え後に再度お試しください。'},503);
     if (['/','/login','/register','/forgot','/reset','/admin','/account'].includes(url.pathname) && (request.method === 'GET' || request.method === 'HEAD')) {
       return new Response(request.method === 'HEAD' ? null : PAGE, {
         headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Content-Security-Policy': CSP, 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' },

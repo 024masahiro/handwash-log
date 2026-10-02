@@ -1,0 +1,27 @@
+name: Firebase checks
+on:
+  pull_request:
+  push:
+    branches: [firebase-migration]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - run: npm ci --prefix firebase-functions
+      - run: npm run test:firebase
+      - name: Verify production Pages build
+        run: npm run build:firebase
+        env:
+          FIREBASE_WEB_CONFIG: '{"apiKey":"demo-handwash-key","authDomain":"demo-handwash.firebaseapp.com","projectId":"demo-handwash","appId":"1:123:web:demo"}'

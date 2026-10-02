@@ -1,0 +1,9 @@
+{
+  "apiKey": "YOUR_FIREBASE_WEB_API_KEY",
+  "authDomain": "YOUR_PROJECT_ID.firebaseapp.com",
+  "projectId": "YOUR_PROJECT_ID",
+  "appId": "YOUR_FIREBASE_WEB_APP_ID",
+  "functionsRegion": "asia-northeast1",
+  "pagesBasePath": "/handwash-log",
+  "pagesOrigin": "https://024masahiro.github.io"
+}

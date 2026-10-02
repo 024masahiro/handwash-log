@@ -7,8 +7,18 @@
     "build": "node scripts/build.mjs",
     "check": "node scripts/verify.mjs",
     "db:generate": "drizzle-kit generate",
-    "package:site": "node scripts/package-site.mjs"
+    "package:site": "node scripts/package-site.mjs",
+    "build:firebase": "node scripts/build-firebase-pages.mjs",
+    "check:firebase": "node scripts/verify-firebase.mjs",
+    "test:firebase": "firebase emulators:exec --project demo-handwash --only auth,firestore,functions \"node scripts/verify-firebase.mjs\""
   },
-  "dependencies": { "drizzle-orm": "0.45.2" },
-  "devDependencies": { "drizzle-kit": "0.31.10" }
+  "dependencies": {
+    "drizzle-orm": "0.45.2",
+    "firebase": "12.19.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.31.10",
+    "esbuild": "0.25.12",
+    "firebase-tools": "15.11.0"
+  }
 }
