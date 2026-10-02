@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1790945355640,
+      "tag": "0000_charming_killraven",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790946355722,
+      "tag": "0001_bumpy_carmella_unuscione",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790948492675,
+      "tag": "0002_ambiguous_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1790953792258,
+      "tag": "0003_mighty_electro",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1790979779191,
+      "tag": "0004_free_roulette",
+      "breakpoints": true
+    }
+  ]
+}

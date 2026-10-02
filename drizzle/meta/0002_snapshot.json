@@ -1,0 +1,154 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "3f8f8683-a0df-4a3d-b8ca-77e8bdf3237e",
+  "prevId": "5a3e0879-2764-4ec8-9e39-556f387deaa2",
+  "tables": {
+    "staff": {
+      "name": "staff",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "login_email": {
+          "name": "login_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_staff_code": {
+          "name": "idx_staff_code",
+          "columns": [
+            "code"
+          ],
+          "isUnique": true
+        },
+        "idx_staff_login_email": {
+          "name": "idx_staff_login_email",
+          "columns": [
+            "login_email"
+          ],
+          "isUnique": true
+        },
+        "idx_staff_user_id": {
+          "name": "idx_staff_user_id",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "washes": {
+      "name": "washes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "staff_id": {
+          "name": "staff_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "washed_at": {
+          "name": "washed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_washes_user_time": {
+          "name": "idx_washes_user_time",
+          "columns": [
+            "user_id",
+            "washed_at"
+          ],
+          "isUnique": false
+        },
+        "idx_washes_staff_time": {
+          "name": "idx_washes_staff_time",
+          "columns": [
+            "staff_id",
+            "washed_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "washes_staff_id_staff_id_fk": {
+          "name": "washes_staff_id_staff_id_fk",
+          "tableFrom": "washes",
+          "tableTo": "staff",
+          "columnsFrom": [
+            "staff_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

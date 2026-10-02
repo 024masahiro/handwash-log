@@ -1,0 +1,14 @@
+{
+  "name": "handwash-log",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/verify.mjs",
+    "db:generate": "drizzle-kit generate",
+    "package:site": "node scripts/package-site.mjs"
+  },
+  "dependencies": { "drizzle-orm": "0.45.2" },
+  "devDependencies": { "drizzle-kit": "0.31.10" }
+}
