@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#102f49">
-  <meta name="description" content="各職員がログインして本人の手洗い回数を記録。管理者は日別・職員別の回数を確認できます。">
-  <title>手洗いログ</title>
+  <meta name="description" content="各職員がログインして本人の手洗い・手指消毒の回数をまとめて記録。管理者は日別・職員別の回数を確認できます。">
+  <title>手洗い・手指消毒ログ</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23102f49'/%3E%3Cpath d='M16 5c-2 4-8 9-8 14a8 8 0 0016 0c0-5-6-10-8-14z' fill='%2374eced'/%3E%3C/svg%3E">
   <style>
     :root{color-scheme:light;--ink:#102f49;--muted:#637589;--accent:#75ecee;--blue:#087f94;--background:#f2f6fa;--line:#e5ebf1;--font:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
@@ -34,42 +34,42 @@
     <symbol id="lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
     <symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
   </defs></svg>
-  <header class="topbar"><div class="topbar-inner"><div class="brand"><span class="brand-icon"><svg aria-hidden="true"><use href="#drop"/></svg></span>手洗いログ</div><div class="header-actions"><a href="/login" class="admin-toggle" id="login-nav">ログイン</a><button id="account-toggle" class="admin-toggle" type="button" hidden>アカウント設定</button><button id="logout" class="admin-toggle" type="button" hidden>ログアウト</button><button id="admin-toggle" class="admin-toggle" type="button" hidden>ダッシュボード</button></div></div></div></header>
+  <header class="topbar"><div class="topbar-inner"><div class="brand"><span class="brand-icon"><svg aria-hidden="true"><use href="#drop"/></svg></span>手洗い・手指消毒ログ</div><div class="header-actions"><a href="/login" class="admin-toggle" id="login-nav">ログイン</a><button id="account-toggle" class="admin-toggle" type="button" hidden>アカウント設定</button><button id="logout" class="admin-toggle" type="button" hidden>ログアウト</button><button id="admin-toggle" class="admin-toggle" type="button" hidden>ダッシュボード</button></div></div></div></header>
   <main>
-    <div class="page-heading"><h1>今日の手洗い</h1><div class="date"><svg aria-hidden="true"><use href="#calendar"/></svg><time id="today-date"></time></div></div>
+    <div class="page-heading"><h1>今日の手洗い・手指消毒</h1><div class="date"><svg aria-hidden="true"><use href="#calendar"/></svg><time id="today-date"></time></div></div>
     <div class="error" id="error" role="alert" hidden><span id="error-message"></span><button class="retry" id="retry" type="button">再読み込み</button><a id="signin" class="signin" href="/login" hidden>サインイン</a></div>
     <section id="auth-view" class="auth-panel"><h2>ログイン</h2><form id="login-form"><label for="login-email-input">メールアドレス</label><input id="login-email-input" type="email" autocomplete="username" maxlength="254" required><label for="login-password">パスワード</label><input id="login-password" type="password" autocomplete="current-password" maxlength="128" required><button class="primary" id="login-submit" type="submit">ログイン</button></form><div class="auth-links"><a href="/register">初めての方：新規登録</a><a href="/forgot">パスワードを忘れた方</a></div><p class="roster-help">管理者も同じログイン画面を利用します。</p></section>
     <section id="register-view" class="auth-panel" hidden><h2>利用者の新規登録</h2><form id="register-form"><label for="register-name">氏名</label><input id="register-name" required maxlength="60" autocomplete="name"><label for="register-email">メールアドレス</label><input id="register-email" type="email" required maxlength="254" autocomplete="email"><label for="register-password">パスワード（10文字以上）</label><input id="register-password" type="password" required minlength="10" maxlength="128" autocomplete="new-password"><button class="primary" type="submit">登録する</button></form><div class="auth-links"><a href="/login">登録済みの方：ログイン</a></div></section>
     <section id="forgot-view" class="auth-panel" hidden><h2>パスワードを再設定</h2><p>登録したメールアドレスに、パスワードの再設定リンクを送信します。</p><form id="forgot-form"><label for="forgot-email">メールアドレス</label><input id="forgot-email" type="email" required maxlength="254" autocomplete="email"><button class="primary" type="submit">再設定リンクを送信</button></form><p id="forgot-notice" class="inline-notice" role="status" hidden></p><div class="auth-links"><a href="/login">ログインに戻る</a></div></section>
     <section id="reset-view" class="auth-panel" hidden><h2>新しいパスワードを設定</h2><form id="reset-form"><label for="reset-password">新しいパスワード（10文字以上）</label><input id="reset-password" type="password" required minlength="10" maxlength="128" autocomplete="new-password"><label for="reset-confirm">新しいパスワード（確認）</label><input id="reset-confirm" type="password" required minlength="10" maxlength="128" autocomplete="new-password"><button class="primary" type="submit">パスワードを再設定</button></form><div class="auth-links"><a href="/forgot">再設定リンクをもう一度依頼する</a></div></section>
-    <section id="password-panel" class="auth-panel" hidden><h2>アカウント設定</h2><section id="verify-email-section" hidden><p>メールアドレスの確認がまだ完了していません。</p><button id="verify-email-button" class="account-save" type="button">確認メールを送信</button><p id="verify-email-notice" role="status" hidden></p></section><form id="password-form"><label for="current-password">現在のパスワード</label><input id="current-password" type="password" autocomplete="current-password" required maxlength="128"><label for="new-password">新しいパスワード（10文字以上）</label><input id="new-password" type="password" autocomplete="new-password" required minlength="10" maxlength="128"><button class="primary" type="submit">パスワードを変更</button></form><section id="withdraw-section"><hr><h2>退会</h2><p class="roster-help">アカウントと手洗い記録を削除します。削除後は元に戻せません。</p><form id="withdraw-form"><label for="withdraw-password">現在のパスワード</label><input id="withdraw-password" type="password" required maxlength="128" autocomplete="current-password"><button class="danger" type="submit">退会して記録を削除する</button></form></section><div class="auth-links"><a href="/">記録画面に戻る</a></div></section>
+    <section id="password-panel" class="auth-panel" hidden><h2>アカウント設定</h2><section id="verify-email-section" hidden><p>メールアドレスの確認がまだ完了していません。</p><button id="verify-email-button" class="account-save" type="button">確認メールを送信</button><p id="verify-email-notice" role="status" hidden></p></section><form id="password-form"><label for="current-password">現在のパスワード</label><input id="current-password" type="password" autocomplete="current-password" required maxlength="128"><label for="new-password">新しいパスワード（10文字以上）</label><input id="new-password" type="password" autocomplete="new-password" required minlength="10" maxlength="128"><button class="primary" type="submit">パスワードを変更</button></form><section id="withdraw-section"><hr><h2>退会</h2><p class="roster-help">アカウントと手洗い・手指消毒の記録を削除します。削除後は元に戻せません。</p><form id="withdraw-form"><label for="withdraw-password">現在のパスワード</label><input id="withdraw-password" type="password" required maxlength="128" autocomplete="current-password"><button class="danger" type="submit">退会して記録を削除する</button></form></section><div class="auth-links"><a href="/">記録画面に戻る</a></div></section>
     <div id="staff-view" hidden>
     <div class="staff-picker"><span class="staff-label">記録する職員</span><div class="account-info"><strong id="staff-identity">ログイン情報を確認しています</strong><small id="login-email"></small></div></div>
     <p class="picker-help" id="picker-help" hidden></p><button id="refresh-records" class="account-save" type="button">最新の記録を確認</button>
     <div class="layout">
-      <section class="counter" aria-label="今日の手洗い回数">
+      <section class="counter" aria-label="今日の手洗い・手指消毒の回数">
         <div class="counter-top"><span class="eyebrow" id="counter-name">本人の記録</span><span class="counter-symbol"><svg aria-hidden="true"><use href="#drop"/></svg></span></div>
         <div class="count-area"><span class="count-number" id="count">—</span><span class="count-unit">回</span></div>
         <p class="latest" id="latest">記録を読み込んでいます</p>
-        <button class="primary" id="add" type="button" disabled><svg aria-hidden="true"><use href="#plus"/></svg><span id="add-label">手を洗った</span></button>
+        <button class="primary" id="add" type="button" disabled><svg aria-hidden="true"><use href="#plus"/></svg><span id="add-label">手洗い・手指消毒を記録</span></button>
         <button class="undo" id="undo-button" type="button" disabled><svg aria-hidden="true"><use href="#undo"/></svg>直前の記録を取り消す</button>
       </section>
       <section class="history" aria-labelledby="history-title">
         <div class="section-header"><h2 id="history-title">今日の履歴</h2><span class="badge" id="history-total">— 回</span></div>
         <p class="history-date" id="history-date"></p>
         <div class="empty" id="empty"><div class="empty-icon"><svg aria-hidden="true"><use href="#drop"/></svg></div><p id="empty-text">記録を読み込んでいます</p><small id="empty-help"></small></div>
-        <ol class="record-list" id="record-list" aria-label="手洗いの記録" hidden></ol>
+        <ol class="record-list" id="record-list" aria-label="手洗い・手指消毒の記録" hidden></ol>
         <p class="history-note" id="history-note">新しい記録から表示されます</p>
       </section>
-      <section class="week" aria-labelledby="week-title"><div class="section-header"><h2 id="week-title">最近7日間</h2><span class="week-note">日付を選ぶと履歴を表示</span></div><div class="chart" id="chart" role="group" aria-label="日付ごとの手洗い回数"></div></section>
+      <section class="week" aria-labelledby="week-title"><div class="section-header"><h2 id="week-title">最近7日間</h2><span class="week-note">日付を選ぶと履歴を表示</span></div><div class="chart" id="chart" role="group" aria-label="日付ごとの手洗い・手指消毒の回数"></div></section>
     </div>
-    <footer><span class="save-note"><svg aria-hidden="true"><use href="#lock"/></svg>あなたの手洗い記録を保存します</span><span>日付はこの端末の時刻で切り替わります</span></footer>
+    <footer><span class="save-note"><svg aria-hidden="true"><use href="#lock"/></svg>あなたの手洗い・手指消毒の記録を保存します</span><span>日付はこの端末の時刻で切り替わります</span></footer>
     </div>
     <section id="admin-view" aria-label="管理画面" hidden>
       <div class="admin-toolbar"><h2>利用者別ダッシュボード</h2><label for="admin-date">集計日<input id="admin-date" type="date" required></label></div>
-      <div class="admin-stats"><div class="admin-stat"><span>手洗い合計</span><strong id="admin-total">— 回</strong></div><div class="admin-stat"><span>記録した利用者</span><strong id="admin-recorded">— 名</strong></div><div class="admin-stat"><span>登録利用者</span><strong id="admin-staff-count">— 名</strong></div></div>
-      <div id="dashboard-bars" class="dashboard-bars" aria-label="利用者ごとの手洗い回数"></div>
-      <div class="admin-table-wrap"><table><thead><tr><th scope="col">利用者名</th><th scope="col">メールアドレス</th><th scope="col">手洗い回数</th><th scope="col">最終記録</th><th scope="col">利用者の管理</th></tr></thead><tbody id="admin-table"></tbody></table><p class="admin-empty" id="admin-empty" hidden>利用者が新規登録すると、この画面に表示されます。</p></div>
+      <div class="admin-stats"><div class="admin-stat"><span>手洗い・手指消毒の合計</span><strong id="admin-total">— 回</strong></div><div class="admin-stat"><span>記録した利用者</span><strong id="admin-recorded">— 名</strong></div><div class="admin-stat"><span>登録利用者</span><strong id="admin-staff-count">— 名</strong></div></div>
+      <div id="dashboard-bars" class="dashboard-bars" aria-label="利用者ごとの手洗い・手指消毒の回数"></div>
+      <div class="admin-table-wrap"><table><thead><tr><th scope="col">利用者名</th><th scope="col">メールアドレス</th><th scope="col">手洗い・手指消毒の回数</th><th scope="col">最終記録</th><th scope="col">利用者の管理</th></tr></thead><tbody id="admin-table"></tbody></table><p class="admin-empty" id="admin-empty" hidden>利用者が新規登録すると、この画面に表示されます。</p></div>
       <p class="admin-note">利用者はログイン画面の「新規登録」から登録できます。管理者権限は一般の登録画面から取得できません。</p>
 
     </section>
@@ -105,7 +105,7 @@
       $('staff-view').hidden = !authenticated || authRoute || view==='/account' || (view==='/admin' && isAdmin);
       $('login-nav').hidden = authenticated; $('account-toggle').hidden = !selectedStaff; $('logout').hidden = !selectedStaff; $('admin-toggle').hidden = !isAdmin;
       $('withdraw-section').hidden = isAdmin;
-      document.querySelector('h1').textContent = !authenticated && !authRoute ? '手洗いログ' : view==='/admin' && isAdmin ? '利用者別ダッシュボード' : view==='/account' ? 'アカウント設定' : authRoute ? '手洗いログ' : '今日の手洗い';
+      document.querySelector('h1').textContent = !authenticated && !authRoute ? '手洗い・手指消毒ログ' : view==='/admin' && isAdmin ? '利用者別ダッシュボード' : view==='/account' ? 'アカウント設定' : authRoute ? '手洗い・手指消毒ログ' : '今日の手洗い・手指消毒';
       $('admin-toggle').textContent = view==='/admin' ? '記録画面へ' : 'ダッシュボード';
     }
     function navigate(path) { view=path;history.pushState({},'',APP_BASE?APP_BASE+(path==='/'?'/':path+'/'):path);clearError();displayViews();if(path==='/admin' && isAdmin)loadSummary(); }
@@ -134,7 +134,7 @@
       $('latest').textContent = !person ? '職員の登録が必要です' : !loaded ? '記録を読み込んでいます' : current.length ? '最終記録 ' + timeFormat.format(new Date(current[0].at)) : 'まだ記録がありません';
       $('add').disabled = busy || !loaded;
       $('add').setAttribute('aria-busy', String(busy));
-      $('add-label').textContent = busy && pendingAddId ? '記録中…' : pendingAddId ? 'もう一度記録' : '手を洗った';
+      $('add-label').textContent = busy && pendingAddId ? '記録中…' : pendingAddId ? 'もう一度記録' : '手洗い・手指消毒を記録';
       $('undo-button').disabled = busy || !loaded || !current.length || !current[0]?.canDelete;
       const selectedRecords = records.filter(record => dayKey(new Date(record.at)) === selected);
       const selectedDate = selected.split('-').map(Number);
@@ -145,13 +145,13 @@
       $('record-list').hidden = !loaded || !selectedRecords.length;
       $('empty').hidden = loaded && selectedRecords.length > 0;
       $('empty-text').textContent = !person ? '職員の登録後に記録できます' : !loaded ? '記録を読み込んでいます' : 'まだ記録がありません';
-      $('empty-help').textContent = loaded && selected === dayKey(today) ? '手を洗ったら、ボタンをタップ。' : '';
+      $('empty-help').textContent = loaded && selected === dayKey(today) ? '手洗い・手指消毒をしたら、同じボタンで1回記録。' : '';
       const list = $('record-list');
       list.replaceChildren();
       for (const record of selectedRecords) {
         const item = document.createElement('li'); item.className = 'record';
         const glyph = document.createElement('span'); glyph.className = 'record-icon'; glyph.innerHTML = icon('drop');
-        const label = document.createElement('span'); label.className = 'record-label'; label.textContent = '手洗い';
+        const label = document.createElement('span'); label.className = 'record-label'; label.textContent = '手洗い・手指消毒';
         const time = document.createElement('time'); time.dateTime = new Date(record.at).toISOString(); time.textContent = timeFormat.format(new Date(record.at));
         const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'delete'; remove.innerHTML = icon('close'); remove.disabled = busy;
         remove.setAttribute('aria-label', longDate.format(new Date(record.at)) + ' ' + time.textContent + 'の記録を削除');
@@ -212,7 +212,7 @@
         records = [result.record, ...records.filter(record => record.id !== id)].sort((a,b) => b.at - a.at || b.id.localeCompare(a.id));
         selected = dayKey(today); render();
         $('count').classList.remove('pop'); void $('count').offsetWidth; $('count').classList.add('pop');
-        toast('手洗いを1回記録しました');
+        toast('手洗い・手指消毒を1回記録しました');
         return { id:result.record.id, staffId:selectedStaff, staffName:currentStaff()?.name || '', recordedAt:result.record.at, todayCount:todayRecords().length };
       } catch(error) {
         if(error.status >= 400 && error.status < 500 && error.status !== 401) pendingAddId = null;
@@ -268,7 +268,7 @@
           }
           const save=document.createElement('button');save.type='submit';save.className='account-save';save.textContent='保存';form.append(save);details.append(form);accountCell.append(details);row.append(accountCell);
           if(person.is_admin && !isOwner){details.replaceChildren(summary);}
-          if(!person.is_admin){const remove=document.createElement('button');remove.type='button';remove.className='danger';remove.textContent=person.deleting?'削除を再試行':'利用者を削除';details.append(remove);remove.addEventListener('click',async()=>{if(!confirm(person.name+'さんのアカウントと手洗い記録を削除します。元に戻せません。削除しますか？'))return;remove.disabled=true;try{await api('/api/admin/staff/'+person.id,{method:'DELETE'});toast('利用者を削除しました');await loadBootstrap();await loadSummary();}catch(error){showError(error.message,error.signIn);}finally{remove.disabled=false;}});}
+          if(!person.is_admin){const remove=document.createElement('button');remove.type='button';remove.className='danger';remove.textContent=person.deleting?'削除を再試行':'利用者を削除';details.append(remove);remove.addEventListener('click',async()=>{if(!confirm(person.name+'さんのアカウントと手洗い・手指消毒の記録を削除します。元に戻せません。削除しますか？'))return;remove.disabled=true;try{await api('/api/admin/staff/'+person.id,{method:'DELETE'});toast('利用者を削除しました');await loadBootstrap();await loadSummary();}catch(error){showError(error.message,error.signIn);}finally{remove.disabled=false;}});}
           form.addEventListener('submit',async event=>{
             event.preventDefault();save.disabled=true;clearError();
             try {
@@ -291,7 +291,7 @@
     $('forgot-form').addEventListener('submit',async event=>{event.preventDefault();const button=event.submitter;button.disabled=true;clearError();$('forgot-notice').hidden=true;try{const result=await api('/api/auth/forgot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('forgot-email').value})});$('forgot-notice').textContent=result.message;$('forgot-notice').hidden=false;}catch(error){showError(error.message);}finally{button.disabled=false;}});
     $('reset-form').addEventListener('submit',async event=>{event.preventDefault();if($('reset-password').value!==$('reset-confirm').value){showError('確認用パスワードが一致しません。');return;}const button=event.submitter;button.disabled=true;clearError();try{await api('/api/auth/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:resetToken,password:$('reset-password').value})});$('reset-form').reset();navigate('/login');await loadBootstrap();toast('パスワードを再設定しました。ログインしてください。');}catch(error){showError(error.message);}finally{button.disabled=false;}});
     $('verify-email-button').addEventListener('click',async()=>{const button=$('verify-email-button');button.disabled=true;try{await api('/api/auth/verify-email',{method:'POST'});$('verify-email-notice').textContent='確認メールを送信しました。メールのリンクを開き、この画面を再読み込みしてください。';$('verify-email-notice').hidden=false;}catch(error){showError(error.message);}finally{button.disabled=false;}});
-    $('withdraw-form').addEventListener('submit',async event=>{event.preventDefault();if(!confirm('退会するとアカウントと手洗い記録を削除します。元に戻せません。退会しますか？'))return;const button=event.submitter;button.disabled=true;try{await api('/api/account',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('withdraw-password').value})});$('withdraw-form').reset();navigate('/login');await loadBootstrap();toast('退会し、記録を削除しました。');}catch(error){showError(error.message);}finally{button.disabled=false;}});
+    $('withdraw-form').addEventListener('submit',async event=>{event.preventDefault();if(!confirm('退会するとアカウントと手洗い・手指消毒の記録を削除します。元に戻せません。退会しますか？'))return;const button=event.submitter;button.disabled=true;try{await api('/api/account',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('withdraw-password').value})});$('withdraw-form').reset();navigate('/login');await loadBootstrap();toast('退会し、記録を削除しました。');}catch(error){showError(error.message);}finally{button.disabled=false;}});
     $('login-form').addEventListener('submit',async event=>{
       event.preventDefault();$('login-submit').disabled=true;clearError();
       try{await api('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('login-email-input').value,password:$('login-password').value})});$('login-password').value='';navigate('/');await loadBootstrap();if(isAdmin)navigate('/admin');}
