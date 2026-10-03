@@ -27,7 +27,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         run: |
           git diff --name-only HEAD^ HEAD > "$RUNNER_TEMP/handwash-changed-paths"
-          if [ "$EVENT_NAME" = workflow_dispatch ] || rg -q '^(worker/|scripts/deploy-free-backend\.mjs$|backend-public-config\.json$|\.github/workflows/pages\.yml$)' "$RUNNER_TEMP/handwash-changed-paths"; then
+          if [ "$EVENT_NAME" = workflow_dispatch ] || grep -Eq '^(worker/|scripts/deploy-free-backend\.mjs$|backend-public-config\.json$|\.github/workflows/pages\.yml$)' "$RUNNER_TEMP/handwash-changed-paths"; then
             echo 'update=true' >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/setup-node@v4
