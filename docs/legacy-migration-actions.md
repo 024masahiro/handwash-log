@@ -3,6 +3,7 @@
 Firebaseの認証とCloudflareの保存先を準備した後、`Migrate and verify free backend` を所有者がmainから実行します。公開画面の切り替えは、すべての段階が成功してから行います。
 
 1. `preflight`: 本番Firebaseへ検証用PBKDF2パスワードを取り込み、ログインして検証用アカウントを削除します。記録・名簿・メールアドレスはArtifactsへ保存しません。
+   移行用Secretを登録したら、`check-backup` で受け取りと復号・指紋照合を確認します。旧サイトへの書き込み停止はこの確認に成功してから行います。
 2. 旧サイトの書き込みを停止し、`staff` と `washes` の全行バックアップを照合します。
 3. バックアップをAES-GCMで暗号化し、暗号鍵をFirebase管理用鍵から得たRSA公開鍵で保護します。暗号化JSONは非公開のGitHub Secret `HANDWASH_LEGACY_BACKUP` に登録します。公開リポジトリにはデータを含まない照合用の `data/legacy-backup.integrity.json` だけを保存します。
 4. `migrate`: ロック中・初回空の保存先に認証と記録を取り込み、全件照合します。同じバックアップから安全に再開できます。

@@ -10,6 +10,10 @@ import {decryptBackup,sha256} from './migration-envelope.mjs';
 
 class OperationError extends Error{}
 const fail=message=>{throw new OperationError(message);};
+async function emit(report){
+ await writeFile(resolve('backend-verification.json'),JSON.stringify(report,null,2)+'\n');
+ console.log(JSON.stringify(report));if(process.env.GITHUB_STEP_SUMMARY)await writeFile(process.env.GITHUB_STEP_SUMMARY,'手洗いログの本番確認が完了しました。\n\n```json\n'+JSON.stringify(report,null,2)+'\n```\n',{flag:'a'});
+}
 export function resumeStage(marker,digest){
  if(!marker)return 'new';
  if(marker.digest!==digest)fail('別のバックアップの移行が記録されています。');
@@ -19,7 +23,7 @@ export function resumeStage(marker,digest){
 
 async function main(){
  const operation=process.env.HANDWASH_OPERATION;
- if(!['preflight','migrate','activate','verify'].includes(operation))fail('実行する移行段階を指定してください。');
+ if(!['preflight','check-backup','migrate','activate','verify'].includes(operation))fail('実行する移行段階を指定してください。');
  const checked=credentials({accountId:process.env.CLOUDFLARE_ACCOUNT_ID,token:process.env.CLOUDFLARE_API_TOKEN,serviceAccountJson:process.env.FIREBASE_SERVICE_ACCOUNT});
  const publicConfig=JSON.parse(await readFile(resolve('../backend-public-config.json'),'utf8'));
  if(publicConfig.projectId!==projectId||publicConfig.workerName!==workerName||publicConfig.accountId!==checked.accountId||publicConfig.migrationPublicKeySha256!==sha256(checked.publicKey)||!/^https:\/\/handwash-api\.[a-z0-9-]+\.workers\.dev$/.test(publicConfig.apiOrigin)||!/^[a-f0-9-]{36}$/.test(publicConfig.databaseId))fail('初期設定で確認した保存先と一致しません。');
@@ -62,6 +66,7 @@ async function main(){
   const backup=decryptBackup(envelope,checked.account.private_key);
   const {freeMigrationPlan,sameProfiles,sameWashes}=await import(pathToFileURL(resolve('scripts/free-migration-plan.mjs')));
   const plan=freeMigrationPlan(backup,projectId);if(plan.digest!==integrity.backupDigest)fail('元のバックアップの照合に失敗しました。');
+  if(operation==='check-backup'){Object.assign(report,{encryptedBackupVerified:true,migrationLocked:locked,...plan.summary});await emit(report);return;}
   async function rows(table){const all=[];let after='';while(true){const page=await query(`SELECT * FROM ${table} WHERE id>? ORDER BY id LIMIT 1000`,[after]);all.push(...page);if(page.length<1000)return all;after=page.at(-1).id;}}
   async function exact(){if(!sameProfiles(await rows('staff'),plan)||!sameWashes(await rows('washes'),plan))fail('移行先の名簿・記録が元データと一致しません。');}
   const marker=(await query("SELECT digest,state FROM migration_state WHERE key='legacy'"))[0];
@@ -118,7 +123,6 @@ async function main(){
    }
   }
  }
- await writeFile(resolve('backend-verification.json'),JSON.stringify(report,null,2)+'\n');
- console.log(JSON.stringify(report));if(process.env.GITHUB_STEP_SUMMARY)await writeFile(process.env.GITHUB_STEP_SUMMARY,'手洗いログの本番確認が完了しました。\n\n```json\n'+JSON.stringify(report,null,2)+'\n```\n',{flag:'a'});
+ await emit(report);
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){main().catch(error=>{console.error(error instanceof OperationError?error.message:'移行段階を完了できませんでした。接続先・移行状態・認証権限を確認してください。'+(/^auth\/[a-z-]+$/.test(error.code||'')?' '+error.code:''));process.exitCode=1;});}
