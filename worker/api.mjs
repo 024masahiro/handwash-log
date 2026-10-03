@@ -28,6 +28,16 @@ export function createApi({db,identity,clock=Date.now}){
       if(profile.is_admin!==Number(isAdmin)||profile.is_owner!==Number(isOwner)||profile.email!==(user.email||''))await statement('UPDATE staff SET is_admin=?,is_owner=?,email=? WHERE id=? AND deleting=0',Number(isAdmin),Number(isOwner),user.email||'',uid).run();
       return {myStaff:{id:uid,name:profile.name,email:user.email||''},isAdmin,isOwner,authenticated:true,loginEmail:user.email||'',emailVerified:user.emailVerified,mailConfigured:true};
     }
+    if(url.pathname==='/api/ranking'&&method==='GET'){
+      const offset=9*3600000,from=Math.floor((clock()+offset)/86400000)*86400000-offset,to=from+86400000;
+      const result=await statement('SELECT s.id,s.name,COUNT(w.id) AS count FROM staff s JOIN washes w ON w.staff_id=s.id AND w.washed_at>=? AND w.washed_at<? WHERE s.deleting=0 GROUP BY s.id LIMIT 501',from,to).all();
+      if(result.results.length>500)fail('利用者が多いため、ランキングの対応が必要です。',409);
+      const collator=new Intl.Collator('ja'),rows=result.results.sort((a,b)=>b.count-a.count||collator.compare(a.name,b.name)||a.id.localeCompare(b.id));
+      let rank=0,previousCount=null;
+      const ranked=rows.map((row,index)=>{if(row.count!==previousCount)rank=index+1;previousCount=row.count;return {...row,rank};});
+      const me=ranked.find(row=>row.id===uid);
+      return {date:new Date(from+offset).toISOString().slice(0,10),ranking:ranked.filter(row=>row.rank<=10).map(row=>({rank:row.rank,name:row.name,count:row.count,isSelf:row.id===uid})),me:{rank:me?.rank??null,count:me?.count??0}};
+    }
     if(url.pathname==='/api/admin/summary'&&method==='GET'){
       const {from,to}=range(url.searchParams,clock(),2);
       const result=await statement('SELECT s.id,s.name,s.email AS login_email,s.is_admin,s.deleting,COUNT(w.id) AS count,MAX(w.washed_at) AS latest FROM staff s LEFT JOIN washes w ON w.staff_id=s.id AND w.washed_at>=? AND w.washed_at<? GROUP BY s.id LIMIT 501',from,to).all();

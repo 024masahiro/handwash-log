@@ -27,7 +27,7 @@ export function createWorker({getIdentity=identityFor,clock=Date.now}={}){
       if(origin!==allowedOrigin||!['GET','POST','DELETE'].includes(request.headers.get('Access-Control-Request-Method'))||headers.some(value=>!['authorization','content-type','x-handwash-profile'].includes(value)))fail('この接続元からは操作できません。',403);
       return new Response(null,{status:204,headers:{...corsHeaders(origin),'Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS','Access-Control-Allow-Headers':'Authorization,Content-Type,X-Handwash-Profile','Access-Control-Max-Age':'600'}});
     }
-    if(url.pathname==='/'&&request.method==='GET')return json({ready:!!env.DB&&!!env.FIREBASE_SERVICE_ACCOUNT&&/^[a-z][a-z0-9-]{4,29}$/.test(env.FIREBASE_PROJECT_ID||'')&&env.HANDWASH_MIGRATION_LOCK!=='1',service:'handwash-free'},200,origin);
+    if(url.pathname==='/'&&request.method==='GET')return json({ready:!!env.DB&&!!env.FIREBASE_SERVICE_ACCOUNT&&/^[a-z][a-z0-9-]{4,29}$/.test(env.FIREBASE_PROJECT_ID||'')&&env.HANDWASH_MIGRATION_LOCK!=='1',service:'handwash-free',features:{dailyRanking:true}},200,origin);
     if(!url.pathname.startsWith('/api/'))fail('ページが見つかりません。',404);
     if(!env.DB)fail('保存先の設定が未完了です。',503,'setup-required');
     if(env.HANDWASH_MIGRATION_LOCK==='1')fail('保存先を準備中です。公開切り替え後にお試しください。',503,'migration-locked');
