@@ -1,0 +1,10 @@
+{
+  "projectId": "handwash-log",
+  "workerName": "handwash-api",
+  "accountId": "a69fb128dd35d6296523241887419065",
+  "databaseId": "c4b44715-8f9e-474e-a7cd-d5649901dc3e",
+  "apiOrigin": "https://handwash-api.024masahiro.workers.dev",
+  "migrationLocked": true,
+  "migrationPublicKey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAthH0ydHZ75Khp/YwyXei\nc5z7Luwm4Yir9kMoFNns7k1kqiYchhNnwOb5rPuX97zSQyJ3b7r0pUlGlDU0Ke5P\nON/Dte8n9k4MukicXg8YGjkAreFBS4JfL9L6G3LDzfqNMptM6UIov+x6ci9t4nrU\nAz2SSvz4y1pa1QizMWpUzDbeD4iN/O+9Fol8QmEVuBeT/+Kqu1/xa0kWUnVXFi+r\n6agvOH6CTwWjYoUXZwyRFW0P4h0TkK5OXlKgPhem9+L4O/BzavYS6YB4nh2ziP5m\nqXAGk0Pmdjy04x9XLtrHgbk77ZG/x5tfT84R8uWmKQ7+pLSaMvuCC5uzdJFJLYnD\n5QIDAQAB\n-----END PUBLIC KEY-----\n",
+  "migrationPublicKeySha256": "1d0b0776306f2316db05f4dff363627f589a91718f4314e49d5f062df4ca0c5b"
+}

@@ -1,0 +1,64 @@
+name: Migrate and verify free backend
+"on":
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Controlled migration stage
+        type: choice
+        options: [preflight, migrate, activate, verify]
+        default: preflight
+        required: true
+  pull_request:
+    paths:
+      - .github/workflows/backend-operations.yml
+      - scripts/migration-envelope.mjs
+      - scripts/verify-migration-envelope.mjs
+      - scripts/free-backend-operations.mjs
+permissions:
+  contents: read
+concurrency:
+  group: free-backend-setup
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/free-backend-operations.mjs
+      - run: node scripts/verify-migration-envelope.mjs
+  operate:
+    if: github.event_name == 'workflow_dispatch' && github.actor == '024masahiro' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch verified migration source
+        uses: actions/checkout@v4
+        with:
+          ref: b55ea177b3229117bd4a6a55f8ecbc803730319d
+          path: app
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+        working-directory: app
+      - name: Run migration stage
+        run: node ../scripts/free-backend-operations.mjs
+        working-directory: app
+        env:
+          HANDWASH_OPERATION: ${{ inputs.operation }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Save verification result
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-verification-${{ inputs.operation }}
+          path: app/backend-verification.json
+          retention-days: 30
