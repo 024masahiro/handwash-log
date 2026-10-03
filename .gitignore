@@ -5,3 +5,15 @@ dist/
 *.tar.gz
 .env
 pages-dist/
+firebase-web.json
+.firebase/
+*-debug.log
+private-migration/
+*-service-account.json
+
+worker/.dev.vars
+worker/.wrangler/
+worker/wrangler.json
+worker/wrangler.generated.json
+worker/config.local.json
+worker-dist/

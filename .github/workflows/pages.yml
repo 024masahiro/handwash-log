@@ -20,8 +20,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
-      - run: node scripts/build-pages.mjs
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Build free-plan frontend
+        run: npm run build:free
+        env:
+          FIREBASE_WEB_CONFIG: ${{ vars.FIREBASE_WEB_CONFIG }}
+          HANDWASH_API_ORIGIN: ${{ vars.HANDWASH_API_ORIGIN }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

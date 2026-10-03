@@ -115,5 +115,9 @@ assert.equal((await send(pagesRequest(summary,'GET',undefined,bearer))).status,4
 const pageWash=randomUUID();assert.equal((await send(pagesRequest('/api/records','POST',{id:pageWash},bearer))).status,201);
 assert.equal((await send(pagesRequest('/api/auth/logout','POST',undefined,bearer))).status,200);assert.equal((await send(pagesRequest(range,'GET',undefined,bearer))).status,401);
 const rows=sqlite.prepare('SELECT token_hash FROM sessions').all();assert(rows.every(row=>row.token_hash.length===64));
+const frozenEnv={DB:binding,HANDWASH_ADMIN_EMAIL:'manager@company.test',HANDWASH_SETTINGS_KEY:'b'.repeat(64),HANDWASH_ALLOWED_ORIGIN:'https://024masahiro.github.io',HANDWASH_MIGRATION_FREEZE:'1'};
+for(const [path,method] of [['/api/records','POST'],['/api/auth/register','POST'],['/api/account','DELETE'],['/api/admin/staff/'+legacy+'/account','POST']])assert.equal((await worker.fetch(request(path,method,{}),frozenEnv)).status,503);
+assert.equal((await worker.fetch(request('/api/bootstrap'),frozenEnv)).status,200);
+assert.equal((await worker.fetch(request('/api/auth/login','POST',{email:'legacy@company.test',password:'legacy-password'}),frozenEnv)).status,200);
 sqlite.close();
 console.log('Passed: self-registration, admin role injection refused, owner-only setup, private dashboard, withdrawal and deletion, encrypted email settings, reset mail, expired/single-use links, reset races, session revocation, record isolation and allowed-origin-only Pages bearer sessions.');
