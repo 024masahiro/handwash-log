@@ -1,7 +1,7 @@
 import {initializeApp} from 'firebase/app';
-import {getAuth,setPersistence,browserSessionPersistence,signInWithEmailAndPassword,createUserWithEmailAndPassword,updateProfile,signOut,sendPasswordResetEmail,sendEmailVerification,confirmPasswordReset,EmailAuthProvider,reauthenticateWithCredential,updatePassword,connectAuthEmulator} from 'firebase/auth';
+import {initializeAuth,setPersistence,browserSessionPersistence,signInWithEmailAndPassword,createUserWithEmailAndPassword,updateProfile,signOut,sendPasswordResetEmail,sendEmailVerification,confirmPasswordReset,EmailAuthProvider,reauthenticateWithCredential,updatePassword,connectAuthEmulator} from 'firebase/auth';
 const config=__FIREBASE_CONFIG__;
-const app=initializeApp(config),auth=getAuth(app);
+const app=initializeApp(config),auth=initializeAuth(app,{persistence:browserSessionPersistence});
 if(config.emulators)connectAuthEmulator(auth,'http://127.0.0.1:9099',{disableWarnings:true});
 auth.languageCode='ja';
 const ready=setPersistence(auth,browserSessionPersistence).then(()=>auth.authStateReady());
