@@ -33,7 +33,8 @@ npm run test:free
 npm run build:free
 ```
 
-GitHub PagesのSourceはGitHub Actionsにします。リポジトリ変数 `FIREBASE_WEB_CONFIG` にFirebaseの公開設定JSON、`HANDWASH_API_ORIGIN` に公開したWorkerのURLを設定します。設定不足・エミュレーター設定を検出すると公開ビルドを停止します。
+GitHub PagesのSourceはGitHub Actionsにします。Firebaseの公開設定は `firebase-web.public.json` に登録済みです。`HANDWASH_API_ORIGIN` に公開したWorkerのURLを設定します。設定不足・エミュレーター設定を検出すると公開ビルドを停止します。
+
+Firebaseの設定は `FIREBASE_WEB_CONFIG` の環境変数、ローカルの `firebase-web.json`、リポジトリの `firebase-web.public.json` の順に読み込みます。公開設定はブラウザに配信する4項目のみです。サービスアカウントの秘密鍵は含めません。
 
 利用者情報、記録、旧パスワードハッシュ、Googleの秘密鍵、CloudflareのAPIトークンは公開リポジトリへ入れません。`private-migration/` と `worker/wrangler.json` はGitの対象外です。従来のSites用ソースは切り替え前の確認・書き込み停止に使いますが、新しい公開ビルドには含みません。
-

@@ -1,7 +1,12 @@
 import {readFile,mkdir,writeFile,rm} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {build} from 'esbuild';
-const config=JSON.parse(process.env.FIREBASE_WEB_CONFIG||await readFile('firebase-web.json','utf8'));
+async function readConfig(){
+ if(process.env.FIREBASE_WEB_CONFIG)return JSON.parse(process.env.FIREBASE_WEB_CONFIG);
+ try{return JSON.parse(await readFile('firebase-web.json','utf8'));}catch(error){if(error.code!=='ENOENT')throw error;}
+ return JSON.parse(await readFile('firebase-web.public.json','utf8'));
+}
+const config=await readConfig();
 for(const key of ['apiKey','authDomain','projectId','appId'])if(typeof config[key]!=='string'||!config[key]||/YOUR_|REPLACE|PLACEHOLDER/.test(config[key]))throw new Error('Firebase設定が不足しています: '+key);
 if(!/^[a-z][a-z0-9-]{4,29}$/.test(config.projectId))throw new Error('Invalid project ID');
 if(config.authDomain!==config.projectId+'.firebaseapp.com')throw new Error('Use the project Firebase auth domain');

@@ -120,7 +120,7 @@ Settings → Secrets and variables → Actions → **Variables** に登録しま
 
 | 変数 | 内容 |
 | --- | --- |
-| FIREBASE_WEB_CONFIG | `{"apiKey":"実際の公開APIキー","authDomain":"YOUR_PROJECT_ID.firebaseapp.com","projectId":"YOUR_PROJECT_ID","appId":"実際のウェブアプリID"}` |
+| FIREBASE_WEB_CONFIG | 省略可。登録済みの `firebase-web.public.json` を使用します。別の設定で上書きする場合は `apiKey`、`authDomain`、`projectId`、`appId` のJSONを指定します |
 | HANDWASH_API_ORIGIN | `https://handwash-api.設定したサブドメイン.workers.dev` |
 
 これは公開設定で、秘密鍵は含めません。無料構成の検証、移行、管理者設定、メール受信が確認できてからブランチをmainへ反映します。Sourceは設定済みのGitHub Actionsです。設定不足では公開ビルドを止め、稼働中の版を置き換えません。
