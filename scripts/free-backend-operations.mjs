@@ -91,8 +91,11 @@ async function main(){
     await writeFile(join(dir,'auth-state.json'),JSON.stringify({project:projectId,digest:plan.digest,state:['records-importing','importing','complete'].includes(state)?'complete':'importing'}),{mode:0o600});
     await command(resolve('scripts/import-auth-free.mjs'),['--backup',backupPath,'--project',projectId,'--out',dir,'--apply'],'認証情報の移行');
     if(state!=='complete')await query("UPDATE migration_state SET state='records-importing' WHERE key='legacy' AND digest=?",[plan.digest]);
-    await command(resolve('scripts/import-d1-free.mjs'),['--backup',backupPath,'--project',projectId,'--out',dir,'--config',config,'--apply'],'記録の移行');
-    await exact();Object.assign(report,{migrationLocked:true,fullDataMatched:true,...plan.summary});
+    // Use the same D1 query API as the state checks. This keeps the private SQL
+    // inside the authenticated database request and avoids a separate upload.
+    if(state!=='complete')await query(plan.sql);
+    await exact();await query("UPDATE migration_state SET state='complete',completed_at=? WHERE key='legacy' AND digest=?",[Date.now(),plan.digest]);
+    Object.assign(report,{migrationLocked:true,fullDataMatched:true,...plan.summary});
    }finally{await rm(dir,{recursive:true,force:true});}
   }else{
    if(state!=='complete')fail('データ移行を全件照合してから実行してください。');await exact();
