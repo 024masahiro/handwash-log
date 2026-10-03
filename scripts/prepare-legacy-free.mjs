@@ -1,0 +1,11 @@
+import {mkdir,readFile,writeFile,chmod} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {freeMigrationPlan} from './free-migration-plan.mjs';
+const args=process.argv.slice(2),option=name=>args[args.indexOf(name)+1];
+for(const flag of ['--backup','--project','--out'])if(!args.includes(flag)||!option(flag)||option(flag).startsWith('--'))throw new Error(flag+' を指定してください。');
+const plan=freeMigrationPlan(JSON.parse(await readFile(option('--backup'),'utf8')),option('--project'));
+const out=resolve(option('--out'));await mkdir(out,{recursive:true,mode:0o700});await chmod(out,0o700);
+await writeFile(resolve(out,'records.sql'),plan.sql,{mode:0o600});await chmod(resolve(out,'records.sql'),0o600);
+await writeFile(resolve(out,'manifest.json'),JSON.stringify(plan.manifest,null,2)+'\n',{mode:0o600});
+console.log('移行用SQLと照合用の一覧を非公開フォルダーに作成しました。',plan.summary);
+console.log('認証情報やデータベースはまだ変更していません。');

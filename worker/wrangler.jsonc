@@ -1,0 +1,20 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "handwash-api",
+  "main": "index.mjs",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": true,
+  "vars": {
+    "FIREBASE_PROJECT_ID": "YOUR_PROJECT_ID",
+    "HANDWASH_MIGRATION_LOCK": "1"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "handwash-log",
+      "database_id": "YOUR_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "observability": { "enabled": false }
+}

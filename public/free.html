@@ -45,7 +45,7 @@
     <section id="password-panel" class="auth-panel" hidden><h2>アカウント設定</h2><section id="verify-email-section" hidden><p>メールアドレスの確認がまだ完了していません。</p><button id="verify-email-button" class="account-save" type="button">確認メールを送信</button><p id="verify-email-notice" role="status" hidden></p></section><form id="password-form"><label for="current-password">現在のパスワード</label><input id="current-password" type="password" autocomplete="current-password" required maxlength="128"><label for="new-password">新しいパスワード（10文字以上）</label><input id="new-password" type="password" autocomplete="new-password" required minlength="10" maxlength="128"><button class="primary" type="submit">パスワードを変更</button></form><section id="withdraw-section"><hr><h2>退会</h2><p class="roster-help">アカウントと手洗い記録を削除します。削除後は元に戻せません。</p><form id="withdraw-form"><label for="withdraw-password">現在のパスワード</label><input id="withdraw-password" type="password" required maxlength="128" autocomplete="current-password"><button class="danger" type="submit">退会して記録を削除する</button></form></section><div class="auth-links"><a href="/">記録画面に戻る</a></div></section>
     <div id="staff-view" hidden>
     <div class="staff-picker"><span class="staff-label">記録する職員</span><div class="account-info"><strong id="staff-identity">ログイン情報を確認しています</strong><small id="login-email"></small></div></div>
-    <p class="picker-help" id="picker-help" hidden></p>
+    <p class="picker-help" id="picker-help" hidden></p><button id="refresh-records" class="account-save" type="button">最新の記録を確認</button>
     <div class="layout">
       <section class="counter" aria-label="今日の手洗い回数">
         <div class="counter-top"><span class="eyebrow" id="counter-name">本人の記録</span><span class="counter-symbol"><svg aria-hidden="true"><use href="#drop"/></svg></span></div>
@@ -280,7 +280,7 @@
           });
           table.append(row);
         }
-      } catch(error) { showError(error.message,error.signIn); }
+      } catch(error) { showError(error.message,error.signIn);if(error.status===403)await loadBootstrap(); }
       finally { adminLoading = false; if($('admin-date').value !== value) loadSummary(); }
     }
     $('admin-date').value = dayKey(today); $('admin-date').max = dayKey(today);
@@ -305,10 +305,11 @@
     });
     $('add').addEventListener('click', () => { pendingMutation = addRecord().catch(() => {}).finally(() => { pendingMutation = null; }); });
     $('undo-button').addEventListener('click', () => { updateDay(); const last = todayRecords()[0]; if(last?.canDelete) pendingMutation = deleteRecord(last.id).finally(() => { pendingMutation = null; }); });
+    $('refresh-records').addEventListener('click',()=>loadBootstrap());
     $('retry').addEventListener('click', async () => { await loadBootstrap(); if(!$('admin-view').hidden) await loadSummary(); });
     document.addEventListener('visibilitychange', () => { if (!document.hidden && !busy) loadBootstrap(); });
     window.addEventListener('focus', () => { if (!busy) loadBootstrap(); });
-    setInterval(() => { if (!busy && !document.hidden) { updateDay(); render(); loadRecords(true); if(!$('admin-view').hidden) loadSummary(); } }, 60000);
+    setInterval(() => { if (!busy && !document.hidden) { const changed=updateDay(); render(); if(changed)loadRecords(true); if(!$('admin-view').hidden)loadSummary(); } }, 60000);
     displayViews();render(); loadBootstrap();
   })();
   </script>

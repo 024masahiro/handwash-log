@@ -1,4 +1,4 @@
-name: Firebase checks
+name: Free-plan checks
 on:
   pull_request:
   push:
@@ -19,9 +19,9 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: npm ci
-      - run: npm ci --prefix firebase-functions
-      - run: npm run test:firebase
+      - run: npm run test:free
       - name: Verify production Pages build
-        run: npm run build:firebase
+        run: npm run build:free
         env:
           FIREBASE_WEB_CONFIG: '{"apiKey":"demo-handwash-key","authDomain":"demo-handwash.firebaseapp.com","projectId":"demo-handwash","appId":"1:123:web:demo"}'
+          HANDWASH_API_ORIGIN: https://handwash-api.example.workers.dev

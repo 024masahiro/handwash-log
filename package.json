@@ -8,9 +8,10 @@
     "check": "node scripts/verify.mjs",
     "db:generate": "drizzle-kit generate",
     "package:site": "node scripts/package-site.mjs",
-    "build:firebase": "node scripts/build-firebase-pages.mjs",
-    "check:firebase": "node scripts/verify-firebase.mjs",
-    "test:firebase": "firebase emulators:exec --project demo-handwash --only auth,firestore,functions \"node scripts/verify-firebase.mjs\""
+    "build:free": "node scripts/build-free-pages.mjs",
+    "check:free": "node scripts/verify-free.mjs",
+    "test:free": "firebase emulators:exec --project demo-handwash --only auth \"node scripts/verify-free.mjs && node scripts/verify-auth-flow.mjs\"",
+    "deploy:free": "wrangler deploy --config worker/wrangler.json"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
@@ -19,6 +20,9 @@
   "devDependencies": {
     "drizzle-kit": "0.31.10",
     "esbuild": "0.25.12",
-    "firebase-tools": "15.11.0"
+    "firebase-tools": "15.11.0",
+    "firebase-admin": "14.5.0",
+    "wrangler": "4.147.0",
+    "miniflare": "5.20261001.0-alpha"
   }
 }

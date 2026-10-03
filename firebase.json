@@ -1,24 +1,7 @@
 {
-  "functions": [
-    {
-      "source": "firebase-functions",
-      "codebase": "handwash",
-      "runtime": "nodejs22"
-    }
-  ],
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
   "emulators": {
     "auth": {
       "port": 9099
-    },
-    "firestore": {
-      "port": 8089
-    },
-    "functions": {
-      "port": 5001
     },
     "ui": {
       "enabled": false

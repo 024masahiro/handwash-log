@@ -23,10 +23,11 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - name: Build Firebase frontend
-        run: npm run build:firebase
+      - name: Build free-plan frontend
+        run: npm run build:free
         env:
           FIREBASE_WEB_CONFIG: ${{ vars.FIREBASE_WEB_CONFIG }}
+          HANDWASH_API_ORIGIN: ${{ vars.HANDWASH_API_ORIGIN }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
