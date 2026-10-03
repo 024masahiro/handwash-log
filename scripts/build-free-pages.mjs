@@ -19,7 +19,7 @@ const api=new URL(config.apiOrigin);if(config.emulators){if(api.origin!=='http:/
 config.apiOrigin=api.origin;
 const base=config.pagesBasePath;
 let page=(await readFile('public/free.html','utf8')).replace("const APP_BASE = '';",'const APP_BASE = '+JSON.stringify(base)+';').replace('__FIREBASE_CLIENT_SRC__',base+'/firebase-client.js');
-page=page.replace(/href="(\/(?:login|register|forgot|reset|admin|account)?)(?:\/)??"/g,(_,path)=>'href="'+base+(path==='/'?'/':path+'/')+'"');
+page=page.replace(/href="(\/(?:login|register|forgot|reset|admin|account|ranking)?)(?:\/)??"/g,(_,path)=>'href="'+base+(path==='/'?'/':path+'/')+'"');
 const script=page.match(/<script id="app-script">([\s\S]*?)<\/script>/)?.[1];if(!script)throw new Error('Missing app script');
 const hash=createHash('sha256').update(script).digest('base64');
 const connections=['https://identitytoolkit.googleapis.com','https://securetoken.googleapis.com',config.apiOrigin];if(config.emulators)connections.push('http://127.0.0.1:9099');
@@ -28,5 +28,5 @@ page=page.replace('<meta charset="utf-8">','<meta charset="utf-8">\n  <meta name
 if(/chatgpt|resend\.com|API_ORIGIN|bearerToken|document\.modelContext/i.test(page))throw new Error('Legacy service dependency in free page');
 await rm('pages-dist',{recursive:true,force:true});await mkdir('pages-dist',{recursive:true});
 await build({entryPoints:['src/free-client.mjs'],outfile:'pages-dist/firebase-client.js',bundle:true,minify:true,format:'iife',target:['es2022'],define:{__FIREBASE_CONFIG__:JSON.stringify(config)}});
-for(const route of ['','login','register','forgot','reset','admin','account']){await mkdir('pages-dist/'+route,{recursive:true});await writeFile('pages-dist/'+(route?route+'/':'')+'index.html',page);}
+for(const route of ['','login','register','forgot','reset','admin','account','ranking']){await mkdir('pages-dist/'+route,{recursive:true});await writeFile('pages-dist/'+(route?route+'/':'')+'index.html',page);}
 await writeFile('pages-dist/.nojekyll','');console.log('Free-plan Pages build ready: '+config.projectId);

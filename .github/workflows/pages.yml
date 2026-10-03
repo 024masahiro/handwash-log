@@ -11,7 +11,40 @@ concurrency:
   group: github-pages
   cancel-in-progress: false
 jobs:
+  backend:
+    if: github.ref == 'refs/heads/main' && github.actor == '024masahiro'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: free-backend-setup
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Detect backend update
+        id: changes
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          git diff --name-only HEAD^ HEAD > "$RUNNER_TEMP/handwash-changed-paths"
+          if [ "$EVENT_NAME" = workflow_dispatch ] || rg -q '^(worker/|scripts/deploy-free-backend\.mjs$|backend-public-config\.json$|\.github/workflows/pages\.yml$)' "$RUNNER_TEMP/handwash-changed-paths"; then
+            echo 'update=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.update == 'true'
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+        if: steps.changes.outputs.update == 'true'
+      - name: Update running Cloudflare backend
+        if: steps.changes.outputs.update == 'true'
+        run: node scripts/deploy-free-backend.mjs
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   publish:
+    needs: backend
     runs-on: ubuntu-latest
     environment:
       name: github-pages

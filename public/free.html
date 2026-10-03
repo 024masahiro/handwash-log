@@ -22,6 +22,8 @@
     .topbar-inner{flex-wrap:wrap}.toast{white-space:normal}.staff-label{font-size:.9375rem;font-weight:600;white-space:nowrap}.account-info{min-width:0}.account-info strong{display:block;font-size:1rem}.account-info small{display:block;font-size:.875rem;color:var(--muted);overflow-wrap:anywhere}.account-editor{display:flex;gap:8px;align-items:center;min-width:280px}.account-editor input{font-size:.875rem;width:240px;min-width:0}.account-save{border:1px solid #cad8e1;border-radius:8px;background:white;color:var(--ink);padding:9px 12px;min-height:42px;white-space:nowrap;font-size:.875rem}.account-save:disabled{opacity:.5}
   .auth-panel{max-width:480px;margin:24px auto;background:white;padding:28px;border:1px solid var(--line);border-radius:18px}.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field label,.auth-panel label{display:block;margin:12px 0 7px;font-size:1rem}.field input,.auth-panel input{width:100%;min-width:0}.auth-panel button{margin-top:20px}.account-editor{display:block;min-width:240px}.account-editor label{display:block;font-size:.875rem;margin:10px 0 5px}.account-editor input{width:100%}.account-editor input[type=checkbox]{width:auto}.auth-actions{display:flex;gap:10px;align-items:center}.form-actions{margin-top:18px}@media(max-width:600px){.field-grid{grid-template-columns:1fr}.auth-panel{padding:20px}}
 .auth-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;font-size:.9375rem}.auth-links a{color:var(--blue)}.header-actions{flex-wrap:wrap;justify-content:flex-end}.topbar-inner{align-items:flex-start}.dashboard-bars{display:grid;gap:12px;padding:22px;background:white;border:1px solid var(--line);border-radius:18px;margin-bottom:22px}.dashboard-row{display:grid;grid-template-columns:minmax(90px,1fr) minmax(80px,2fr) 60px;gap:14px;align-items:center}.dashboard-track{height:16px;background:#edf2f6;border-radius:8px;overflow:hidden}.dashboard-fill{height:100%;background:var(--blue);width:var(--progress);border-radius:8px}.dashboard-row strong{text-align:right}.danger{color:#a92738;border:1px solid #e4b7bd;border-radius:10px;background:white;padding:10px 16px;font:inherit}.account-editor summary{cursor:pointer;font-size:.9375rem}.settings-section{margin:22px 0;padding:22px;background:white;border:1px solid var(--line);border-radius:18px}.settings-section input{width:100%}.settings-section label{display:block;margin:12px 0 6px}.settings-section button{margin-top:14px}.inline-notice{padding:12px 16px;background:#e5f5f7;border-radius:10px;font-size:.9375rem}.auth-panel h2{font-size:1.375rem}.auth-panel .primary{min-height:50px}.dashboard-title{margin:0 0 18px}@media(max-width:600px){.brand{font-size:1rem}.topbar-inner{padding:16px}.header-actions{gap:7px}.admin-toggle{font-size:.875rem}.dashboard-bars{padding:16px}.dashboard-row{gap:8px;grid-template-columns:minmax(75px,1fr) minmax(65px,1fr) 50px}}
+
+.ranking-panel{background:white;border:1px solid var(--line);border-radius:18px;padding:24px}.ranking-panel .section-header{flex-wrap:wrap}.ranking-list{list-style:none;margin:18px 0 0;padding:0}.ranking-row{display:grid;grid-template-columns:52px minmax(0,1fr) 72px;gap:12px;align-items:center;padding:14px 12px;border-bottom:1px solid var(--line);border-radius:10px}.ranking-row:last-child{border-bottom:0}.ranking-row.is-self{background:#edf7f9}.ranking-rank{color:var(--blue);font-variant-numeric:tabular-nums}.ranking-name{overflow-wrap:anywhere}.ranking-self-badge{display:inline-block;margin-left:8px;font-size:.75rem;color:var(--blue)}.ranking-count{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}@media(max-width:600px){.ranking-panel{padding:18px 16px}.ranking-row{padding:12px 8px;gap:8px;grid-template-columns:44px minmax(0,1fr) 64px}}
 </style>
 </head>
 <body>
@@ -34,7 +36,7 @@
     <symbol id="lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
     <symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
   </defs></svg>
-  <header class="topbar"><div class="topbar-inner"><div class="brand"><span class="brand-icon"><svg aria-hidden="true"><use href="#drop"/></svg></span>手洗い・手指消毒ログ</div><div class="header-actions"><a href="/login" class="admin-toggle" id="login-nav">ログイン</a><button id="account-toggle" class="admin-toggle" type="button" hidden>アカウント設定</button><button id="logout" class="admin-toggle" type="button" hidden>ログアウト</button><button id="admin-toggle" class="admin-toggle" type="button" hidden>ダッシュボード</button></div></div></div></header>
+  <header class="topbar"><div class="topbar-inner"><div class="brand"><span class="brand-icon"><svg aria-hidden="true"><use href="#drop"/></svg></span>手洗い・手指消毒ログ</div><div class="header-actions"><a href="/login" class="admin-toggle" id="login-nav">ログイン</a><button id="ranking-toggle" class="admin-toggle" type="button" hidden>ランキング</button><button id="account-toggle" class="admin-toggle" type="button" hidden>アカウント設定</button><button id="logout" class="admin-toggle" type="button" hidden>ログアウト</button><button id="admin-toggle" class="admin-toggle" type="button" hidden>ダッシュボード</button></div></div></div></header>
   <main>
     <div class="page-heading"><h1>今日の手洗い・手指消毒</h1><div class="date"><svg aria-hidden="true"><use href="#calendar"/></svg><time id="today-date"></time></div></div>
     <div class="error" id="error" role="alert" hidden><span id="error-message"></span><button class="retry" id="retry" type="button">再読み込み</button><a id="signin" class="signin" href="/login" hidden>サインイン</a></div>
@@ -65,6 +67,14 @@
     </div>
     <footer><span class="save-note"><svg aria-hidden="true"><use href="#lock"/></svg>あなたの手洗い・手指消毒の記録を保存します</span><span>日付はこの端末の時刻で切り替わります</span></footer>
     </div>
+    <section id="ranking-view" class="ranking-panel" aria-labelledby="ranking-title" hidden>
+      <div class="section-header"><h2 id="ranking-title">手洗い・手指消毒のランキング</h2><button id="refresh-ranking" class="account-save" type="button">最新の順位を確認</button></div>
+      <p id="ranking-date" class="history-date"></p>
+      <p class="roster-help">今日の合計回数で上位10位を表示します。同じ回数は同順位です。</p>
+      <p id="ranking-self" class="inline-notice" role="status"></p>
+      <ol id="ranking-list" class="ranking-list" aria-label="今日の回数ランキング"></ol>
+      <p id="ranking-empty" class="admin-empty" hidden>今日の記録はまだありません。</p>
+    </section>
     <section id="admin-view" aria-label="管理画面" hidden>
       <div class="admin-toolbar"><h2>利用者別ダッシュボード</h2><label for="admin-date">集計日<input id="admin-date" type="date" required></label></div>
       <div class="admin-stats"><div class="admin-stat"><span>手洗い・手指消毒の合計</span><strong id="admin-total">— 回</strong></div><div class="admin-stat"><span>記録した利用者</span><strong id="admin-recorded">— 名</strong></div><div class="admin-stat"><span>登録利用者</span><strong id="admin-staff-count">— 名</strong></div></div>
@@ -94,6 +104,7 @@
     let records = [], loaded = false, busy = false, today = midnight(new Date()), selected = dayKey(today), pendingAddId = null, controller = null, toastTimer;
     let pendingMutation = null;
     let roster = [], selectedStaff = '', isAdmin = false, isOwner = false, bootstrapReady = false, adminLoading = false, authenticated = false;
+    let rankingLoading = false;
     let view = routePath(); const resetToken = new URLSearchParams(location.search).get('oobCode') || '';
     if(new URLSearchParams(location.search).get('mode')==='resetPassword')view='/reset';
     function displayViews() {
@@ -102,14 +113,17 @@
       $('register-view').hidden = view!=='/register'; $('forgot-view').hidden = view!=='/forgot'; $('reset-view').hidden = view!=='/reset';
       $('password-panel').hidden = view!=='/account' || !selectedStaff;
       $('admin-view').hidden = view!=='/admin' || !isAdmin;
-      $('staff-view').hidden = !authenticated || authRoute || view==='/account' || (view==='/admin' && isAdmin);
+      $('staff-view').hidden = !authenticated || authRoute || view==='/account' || view==='/ranking' || (view==='/admin' && isAdmin);
+      $('ranking-view').hidden = view!=='/ranking' || !selectedStaff;
+      $('ranking-toggle').hidden = !selectedStaff;
+      $('ranking-toggle').textContent = view==='/ranking' ? '記録画面へ' : 'ランキング';
       $('login-nav').hidden = authenticated; $('account-toggle').hidden = !selectedStaff; $('logout').hidden = !selectedStaff; $('admin-toggle').hidden = !isAdmin;
       $('withdraw-section').hidden = isAdmin;
-      document.querySelector('h1').textContent = !authenticated && !authRoute ? '手洗い・手指消毒ログ' : view==='/admin' && isAdmin ? '利用者別ダッシュボード' : view==='/account' ? 'アカウント設定' : authRoute ? '手洗い・手指消毒ログ' : '今日の手洗い・手指消毒';
+      document.querySelector('h1').textContent = !authenticated && !authRoute ? '手洗い・手指消毒ログ' : view==='/admin' && isAdmin ? '利用者別ダッシュボード' : view==='/ranking' && authenticated ? '今日のランキング' : view==='/account' ? 'アカウント設定' : authRoute ? '手洗い・手指消毒ログ' : '今日の手洗い・手指消毒';
       $('admin-toggle').textContent = view==='/admin' ? '記録画面へ' : 'ダッシュボード';
     }
-    function navigate(path) { view=path;history.pushState({},'',APP_BASE?APP_BASE+(path==='/'?'/':path+'/'):path);clearError();displayViews();if(path==='/admin' && isAdmin)loadSummary(); }
-    window.addEventListener('popstate',()=>{view=routePath();displayViews();if(view==='/admin')loadSummary();});
+    function navigate(path) { view=path;history.pushState({},'',APP_BASE?APP_BASE+(path==='/'?'/':path+'/'):path);clearError();displayViews();if(path==='/admin' && isAdmin)loadSummary();if(path==='/ranking' && selectedStaff)loadRanking(); }
+    window.addEventListener('popstate',()=>{view=routePath();displayViews();if(view==='/admin')loadSummary();if(view==='/ranking' && selectedStaff)loadRanking();});
     const currentStaff = () => roster.find(person=>person.id===selectedStaff);
     const todayRecords = () => records.filter(record => dayKey(new Date(record.at)) === dayKey(today));
     const announce = message => { $('announcement').textContent = message; };
@@ -129,6 +143,7 @@
       $('counter-name').textContent = person ? person.name + 'さんのカウント' : '本人の記録';
       $('staff-identity').textContent = person ? person.name : bootstrapReady ? '職員名簿への登録が必要です' : 'ログイン情報を確認しています';
       $('admin-toggle').disabled = busy || !!pendingAddId;
+      $('ranking-toggle').disabled = busy || !!pendingAddId;
       $('today-date').textContent = longDate.format(today); $('today-date').dateTime = dayKey(today);
       $('count').textContent = loaded ? String(current.length) : '—';
       $('latest').textContent = !person ? '職員の登録が必要です' : !loaded ? '記録を読み込んでいます' : current.length ? '最終記録 ' + timeFormat.format(new Date(current[0].at)) : 'まだ記録がありません';
@@ -232,16 +247,35 @@
     async function loadBootstrap() {
       try {
         const data = await api('/api/bootstrap');
-        if(selectedStaff !== (data.myStaff?.id || '')) { controller?.abort(); records=[]; loaded=false; pendingAddId=null; }
+        if(selectedStaff !== (data.myStaff?.id || '')) { controller?.abort(); records=[]; loaded=false; pendingAddId=null;$('ranking-list').replaceChildren();$('ranking-self').textContent='';$('ranking-date').textContent='';$('ranking-empty').hidden=true; }
         roster = data.myStaff ? [data.myStaff] : []; selectedStaff = data.myStaff?.id || ''; isAdmin = data.isAdmin; bootstrapReady = true;
         authenticated=data.authenticated;isOwner=data.isOwner;
         $('login-email').textContent = data.loginEmail || '';
         $('verify-email-section').hidden = !data.authenticated || data.emailVerified;
         $('picker-help').hidden = true;
         if(!isAdmin){$('admin-table').replaceChildren();$('dashboard-bars').replaceChildren();if(view==='/admin' && authenticated)navigate('/');}
-        displayViews();if(view==='/admin' && isAdmin)loadSummary();
+        displayViews();if(view==='/admin' && isAdmin)loadSummary();if(view==='/ranking' && selectedStaff)loadRanking();
         clearError(); render(); await loadRecords();
       } catch(error) { showError(error.message, error.signIn); render(); }
+    }
+    async function loadRanking() {
+      if(!selectedStaff || view!=='/ranking' || rankingLoading) return;
+      const personId=selectedStaff;rankingLoading=true;$('refresh-ranking').disabled=true;clearError();
+      try {
+        const data=await api('/api/ranking');
+        if(personId!==selectedStaff || view!=='/ranking')return;
+        $('ranking-date').textContent=new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Tokyo'}).format(new Date(data.date+'T00:00:00+09:00'))+'（日本時間）';
+        $('ranking-self').textContent='あなたの記録：'+data.me.count+' 回'+(data.me.rank===null?'（未記録）':'・'+data.me.rank+' 位');
+        $('ranking-list').replaceChildren();$('ranking-empty').hidden=data.ranking.length>0;
+        for(const person of data.ranking){
+          const row=document.createElement('li');row.className='ranking-row'+(person.isSelf?' is-self':'');
+          const rank=document.createElement('strong');rank.className='ranking-rank';rank.textContent=person.rank+' 位';
+          const name=document.createElement('span');name.className='ranking-name';name.textContent=person.name;
+          if(person.isSelf){const badge=document.createElement('span');badge.className='ranking-self-badge';badge.textContent='あなた';name.append(badge);}
+          const count=document.createElement('strong');count.className='ranking-count';count.textContent=person.count+' 回';row.append(rank,name,count);$('ranking-list').append(row);
+        }
+      } catch(error) {if(personId===selectedStaff && view==='/ranking')showError(error.message || 'ランキングを読み込めませんでした。',error.signIn);}
+      finally {rankingLoading=false;$('refresh-ranking').disabled=false;if(personId!==selectedStaff && selectedStaff && view==='/ranking')loadRanking();}
     }
     async function loadSummary() {
       if(!isAdmin || adminLoading) return;
@@ -286,6 +320,8 @@
     $('admin-date').value = dayKey(today); $('admin-date').max = dayKey(today);
     $('admin-date').addEventListener('change', loadSummary);
     $('admin-toggle').addEventListener('click',()=>{if(isAdmin)navigate(view==='/admin'?'/':'/admin');});
+    $('ranking-toggle').addEventListener('click',()=>navigate(view==='/ranking'?'/':'/ranking'));
+    $('refresh-ranking').addEventListener('click',loadRanking);
     $('account-toggle').addEventListener('click',()=>navigate('/account'));
     $('register-form').addEventListener('submit',async event=>{event.preventDefault();const button=event.submitter;button.disabled=true;clearError();try{await api('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('register-name').value,email:$('register-email').value,password:$('register-password').value})});$('login-email-input').value=$('register-email').value;$('register-form').reset();navigate('/login');toast('登録しました。メールアドレスとパスワードでログインしてください。');}catch(error){showError(error.message);}finally{button.disabled=false;}});
     $('forgot-form').addEventListener('submit',async event=>{event.preventDefault();const button=event.submitter;button.disabled=true;clearError();$('forgot-notice').hidden=true;try{const result=await api('/api/auth/forgot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('forgot-email').value})});$('forgot-notice').textContent=result.message;$('forgot-notice').hidden=false;}catch(error){showError(error.message);}finally{button.disabled=false;}});
@@ -306,10 +342,10 @@
     $('add').addEventListener('click', () => { pendingMutation = addRecord().catch(() => {}).finally(() => { pendingMutation = null; }); });
     $('undo-button').addEventListener('click', () => { updateDay(); const last = todayRecords()[0]; if(last?.canDelete) pendingMutation = deleteRecord(last.id).finally(() => { pendingMutation = null; }); });
     $('refresh-records').addEventListener('click',()=>loadBootstrap());
-    $('retry').addEventListener('click', async () => { await loadBootstrap(); if(!$('admin-view').hidden) await loadSummary(); });
+    $('retry').addEventListener('click', async () => { await loadBootstrap(); if(!$('admin-view').hidden) await loadSummary();if(!$('ranking-view').hidden)await loadRanking(); });
     document.addEventListener('visibilitychange', () => { if (!document.hidden && !busy) loadBootstrap(); });
     window.addEventListener('focus', () => { if (!busy) loadBootstrap(); });
-    setInterval(() => { if (!busy && !document.hidden) { const changed=updateDay(); render(); if(changed)loadRecords(true); if(!$('admin-view').hidden)loadSummary(); } }, 60000);
+    setInterval(() => { if (!busy && !document.hidden) { const changed=updateDay(); render(); if(changed)loadRecords(true); if(!$('admin-view').hidden)loadSummary();if(!$('ranking-view').hidden)loadRanking(); } }, 60000);
     displayViews();render(); loadBootstrap();
   })();
   </script>

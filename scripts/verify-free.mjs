@@ -10,6 +10,7 @@ import {createFirebaseIdentity} from '../worker/firebase-identity.mjs';
 import {DatabaseSync,sqliteD1} from './sqlite-d1.mjs';
 import {importPlan} from './legacy-import-plan.mjs';
 import {freeMigrationPlan,sameProfiles,sameWashes} from './free-migration-plan.mjs';
+import {deploymentConfiguration} from './deploy-free-backend.mjs';
 const html=await readFile('public/free.html','utf8');new vm.Script(html.match(/<script id="app-script">([\s\S]*?)<\/script>/)[1]);assert(!/chatgpt|resend\.com|staff-select|職員番号|<textarea|cloudfunctions/i.test(html));for(const id of ['register-name','register-email','register-password'])assert(html.includes('id="'+id+'"'));
 const salt='0123456789abcdef0123456789abcdef',hash=pbkdf2Sync('legacy-password-123',salt,100000,32,'sha256').toString('hex');
 const legacy={staff:[{id:'legacy-user',name:'旧利用者',login_email:'legacy@company.test',password_hash:salt+':'+hash,is_admin:0}],washes:[{id:randomUUID(),staff_id:'legacy-user',washed_at:Date.now()}]};
@@ -21,6 +22,37 @@ const migration=freeMigrationPlan({...legacy,staff:[{...legacy.staff[0],name:"�
 const migrationSql=new DatabaseSync(':memory:');migrationSql.exec(await readFile('worker/migrations/0001_records.sql','utf8'));migrationSql.exec(migration.sql);migrationSql.exec(migration.sql);
 assert(sameProfiles(migrationSql.prepare('SELECT * FROM staff').all(),migration));assert(sameWashes(migrationSql.prepare('SELECT * FROM washes').all(),migration));assert(!migration.sql.includes(hash));assert.equal(migrationSql.prepare("SELECT digest FROM migration_state WHERE key='legacy'").get().digest,migration.digest);
 migrationSql.prepare('UPDATE washes SET washed_at=washed_at+1 WHERE id=?').run(legacy.washes[0].id);assert(!sameWashes(migrationSql.prepare('SELECT * FROM washes').all(),migration));migrationSql.close();
+// Updating the live Worker must preserve its database and active migration state.
+const template=JSON.parse(await readFile('worker/wrangler.jsonc','utf8')),connection=JSON.parse(await readFile('backend-public-config.json','utf8'));
+const settings={bindings:[{name:'DB',type:'d1',id:connection.databaseId},{name:'FIREBASE_PROJECT_ID',type:'plain_text',text:'handwash-log'},{name:'FIREBASE_SERVICE_ACCOUNT',type:'secret_text'},{name:'HANDWASH_MIGRATION_LOCK',type:'plain_text',text:'0'}]};
+const configuration=deploymentConfiguration(template,connection,settings,connection.accountId);assert.equal(configuration.d1_databases[0].database_id,connection.databaseId);assert.equal(configuration.vars.HANDWASH_MIGRATION_LOCK,'0');assert.equal(configuration.keep_vars,true);assert(!JSON.stringify(configuration).includes('secret_text'));
+assert.throws(()=>deploymentConfiguration(template,connection,settings,'0'.repeat(32)));assert.throws(()=>deploymentConfiguration(template,{...connection,databaseId:'0'.repeat(36)},settings,connection.accountId));
+assert.throws(()=>deploymentConfiguration(template,connection,{bindings:settings.bindings.map(row=>row.name==='HANDWASH_MIGRATION_LOCK'?{...row,text:'1'}:row)},connection.accountId));
+assert.throws(()=>deploymentConfiguration(template,connection,{bindings:[...settings.bindings,{name:'OTHER_DATABASE',type:'d1',id:'other'}]},connection.accountId));
+// Rankings are public to authenticated staff, contain only summary fields, and
+// use competition ranks including every tie at tenth place. Days use Japan time.
+{
+  const rankingSql=new DatabaseSync(':memory:');rankingSql.exec(await readFile('worker/migrations/0001_records.sql','utf8'));
+  const now=Date.parse('2026-10-03T14:59:59.999Z'),from=Date.parse('2026-10-02T15:00:00.000Z'),to=from+86400000;
+  const counts=[12,12,9,8,7,6,5,4,3,2,2,1,0,99],users=new Map();
+  for(const [index,count] of counts.entries()){
+    const uid='rank-'+index,name='職員'+String(index).padStart(2,'0');users.set(uid,{uid,displayName:name,email:uid+'@company.test',customClaims:index===0?{admin:true}:{}});
+    rankingSql.prepare('INSERT INTO staff(id,name,email,is_admin,is_owner,deleting,created_at) VALUES(?,?,?,0,0,?,?)').run(uid,name,uid+'@company.test',Number(index===13),from);
+    for(let i=0;i<count;i++)rankingSql.prepare('INSERT INTO washes(id,staff_id,washed_at) VALUES(?,?,?)').run(randomUUID(),uid,from+i);
+  }
+  for(const time of [from-1,to])rankingSql.prepare('INSERT INTO washes(id,staff_id,washed_at) VALUES(?,?,?)').run(randomUUID(),'rank-0',time);
+  const rankingApi=createApi({db:sqliteD1(rankingSql),identity:{getUsers:()=>{throw new Error('Ranking must not fetch private account metadata');}},clock:()=>now});
+  const actor=uid=>({uid,user:users.get(uid)}),request={path:'/api/ranking',method:'GET'};
+  const ranked=await rankingApi(actor('rank-11'),request);
+  assert.equal(ranked.date,'2026-10-03');assert.equal(ranked.ranking.length,11);assert.deepEqual(ranked.ranking.map(row=>row.rank),[1,1,3,4,5,6,7,8,9,10,10]);assert.deepEqual(ranked.me,{rank:12,count:1});
+  for(const row of ranked.ranking)assert.deepEqual(Object.keys(row).sort(),['count','isSelf','name','rank']);
+  const own=await rankingApi(actor('rank-1'),request);assert.equal(own.ranking.filter(row=>row.isSelf).length,1);assert.equal(own.me.rank,1);assert.equal(own.me.count,12);
+  assert.deepEqual((await rankingApi(actor('rank-12'),request)).me,{rank:null,count:0});assert.deepEqual((await rankingApi(actor('rank-0'),request)).ranking.map(({isSelf,...row})=>row),ranked.ranking.map(({isSelf,...row})=>row));
+  await assert.rejects(()=>rankingApi(null,request),error=>error.status===401);await assert.rejects(()=>rankingApi(actor('rank-13'),request),error=>error.status===401);
+  const tomorrow=createApi({db:sqliteD1(rankingSql),identity:{},clock:()=>to});const next=await tomorrow(actor('rank-0'),request);assert.equal(next.date,'2026-10-04');assert.deepEqual(next.me,{rank:1,count:1});assert.equal(next.ranking.length,1);
+  const empty=createApi({db:sqliteD1(rankingSql),identity:{},clock:()=>to+86400000});assert.deepEqual((await empty(actor('rank-0'),request)).ranking,[]);
+  rankingSql.close();
+}
 const sql=new DatabaseSync(':memory:');sql.exec(await readFile('worker/migrations/0001_records.sql','utf8'));const db=sqliteD1(sql),now=Date.now();
 const users=new Map();for(const [uid,name,claims] of [['owner','所有者',{admin:true,owner:true}],['admin','管理者',{admin:true}],['a','山田',{}],['b','鈴木',{}]])users.set(uid,{uid,name,displayName:name,email:uid==='owner'?'024masahiro@gmail.com':uid+'@company.test',emailVerified:true,customClaims:claims});
 const identity={getUser:async uid=>users.get(uid)||null,getUsers:async ids=>ids.map(id=>users.get(id)).filter(Boolean),deleteUser:async uid=>{users.delete(uid);},updateUser:async(uid,update)=>{Object.assign(users.get(uid),update);},createUser:async(uid,update)=>{users.set(uid,{uid,...update,customClaims:{}});}};
@@ -43,6 +75,7 @@ const environment={DB:db,FIREBASE_PROJECT_ID:'demo-handwash',FIREBASE_SERVICE_AC
 const req=(path,method='GET',body,origin='https://024masahiro.github.io',token='owner-token',extra={})=>new Request('https://handwash-api.example.workers.dev'+path,{method,headers:{Origin:origin,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{}),...extra},...(body===undefined?{}:{body:JSON.stringify(body)})});
 assert.equal((await http.fetch(req('/api/bootstrap','GET',undefined,'https://evil.test'),environment)).status,403);assert.equal((await http.fetch(req('/api/bootstrap','GET',undefined,undefined,''),environment)).status,200);
 assert.equal((await http.fetch(req('/api/bootstrap'),{...environment,HANDWASH_MIGRATION_LOCK:'1'})).status,503);
+assert.equal((await http.fetch(req('/api/ranking','GET',undefined,undefined,''),environment)).status,401);assert.equal((await http.fetch(req('/api/ranking'),environment)).status,200);
 const preflight=req('/api/records','OPTIONS',undefined,undefined,'',{'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization,content-type,x-handwash-profile'});assert.equal((await http.fetch(preflight,environment)).status,204);
 assert.equal((await http.fetch(req('/api/profile','POST',{name:'x'.repeat(20000)}),environment)).status,413);
 const extraIdentity=req('/api/bootstrap','GET',undefined,undefined,'',{Cookie:'owner-token','oai-authenticated-user-email':'024masahiro@gmail.com'});const anonymous=await (await http.fetch(extraIdentity,environment)).json();assert.equal(anonymous.authenticated,false);
@@ -66,6 +99,7 @@ const mf=new Miniflare(convertV4MiniflareOptions({modules:true,script:bundled,co
 try{const realDb=await mf.getD1Database('DB');for(const query of (await readFile('worker/migrations/0001_records.sql','utf8')).split(';').filter(text=>text.trim()))await realDb.prepare(query).run();
  const send=(path,method='GET',body)=>mf.dispatchFetch('https://handwash-api.example.workers.dev'+path,{method,headers:{Origin:'https://024masahiro.github.io',Authorization:'Bearer '+token(),'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
  const bootstrap=await send('/api/bootstrap');assert.equal(bootstrap.status,200);assert.equal((await bootstrap.json()).myStaff.id,'rsa-user');
- const record=randomUUID();assert.equal((await send('/api/records','POST',{id:record})).status,200);assert.equal((await send('/api/records','POST',{id:record})).status,200);assert.equal((await (await send(range)).json()).records.length,1);assert.equal((await send('/api/admin/summary?from='+(now-1000)+'&to='+(now+1000))).status,403);
+ const record=randomUUID();assert.equal((await send('/api/records','POST',{id:record})).status,200);assert.equal((await send('/api/records','POST',{id:record})).status,200);assert.equal((await (await send(range)).json()).records.length,1);const ranking=await send('/api/ranking');assert.equal(ranking.status,200);const ranked=await ranking.json();assert.equal(ranked.me.count,1);assert.equal(ranked.ranking[0].isSelf,true);assert.deepEqual(Object.keys(ranked.ranking[0]).sort(),['count','isSelf','name','rank']);
+ assert.equal((await send('/api/admin/summary?from='+(now-1000)+'&to='+(now+1000))).status,403);
 }catch(error){throw error;}finally{await mf.dispose();sql.close();}
-console.log('Free-plan checks passed: real D1 transaction/index, identity isolation, protected admin roles, deletion/retry, CORS, RS256/project/expiry/revocation verification, OAuth/key cache and legacy password import.');
+console.log('Free-plan checks passed: authenticated top-ten ranking/ties/Japan-day boundary/minimal fields, preserved production bindings, real D1 transaction/index, identity isolation, protected admin roles, deletion/retry, CORS, RS256/project/expiry/revocation verification, OAuth/key cache and legacy password import.');
