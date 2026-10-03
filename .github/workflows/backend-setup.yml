@@ -1,0 +1,60 @@
+name: Prepare free backend
+"on":
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/backend-setup.yml
+      - scripts/setup-free-backend.mjs
+      - scripts/verify-backend-setup.mjs
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/backend-setup.yml
+      - scripts/setup-free-backend.mjs
+      - scripts/verify-backend-setup.mjs
+permissions:
+  contents: read
+concurrency:
+  group: free-backend-setup
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/verify-backend-setup.mjs
+  setup:
+    if: github.event_name == 'workflow_dispatch' && github.actor == '024masahiro'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch verified migration source
+        uses: actions/checkout@v4
+        with:
+          ref: b55ea177b3229117bd4a6a55f8ecbc803730319d
+          path: app
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+        working-directory: app
+      - name: Prepare Cloudflare Free backend with migration lock
+        run: node ../scripts/setup-free-backend.mjs
+        working-directory: app
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Save public connection settings
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-public-config
+          path: app/backend-public-config.json
+          retention-days: 30
