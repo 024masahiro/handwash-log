@@ -5,7 +5,7 @@ name: Migrate and verify free backend
       operation:
         description: Controlled migration stage
         type: choice
-        options: [preflight, migrate, activate, verify]
+        options: [preflight, check-backup, migrate, activate, verify]
         default: preflight
         required: true
   pull_request:
