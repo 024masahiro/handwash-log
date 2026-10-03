@@ -56,10 +56,10 @@ async function main(){
   if(before.length!==after.length||before.some(user=>!after.some(row=>row.uid===user.uid)))fail('検証用アカウントの後片付けを確認してください。');
   Object.assign(report,{authenticationUsable:true,importedPasswordVerified:true,existingAuthAccounts:after.length,migrationLocked:locked,...await counts()});
  }else{
-  const encrypted=await readFile(resolve('../data/legacy-backup.encrypted.json'));
+  let envelope;try{envelope=JSON.parse(process.env.HANDWASH_LEGACY_BACKUP||'');}catch{fail('GitHub SecretのHANDWASH_LEGACY_BACKUPに暗号化した移行データを登録してください。');}
   const integrity=JSON.parse(await readFile(resolve('../data/legacy-backup.integrity.json'),'utf8'));
-  if(integrity.projectId!==projectId||integrity.cipherSha256!==sha256(encrypted))fail('確定した暗号化バックアップと一致しません。');
-  const backup=decryptBackup(JSON.parse(encrypted),checked.account.private_key);
+  if(integrity.projectId!==projectId||integrity.cipherSha256!==sha256(JSON.stringify(envelope)))fail('確定した暗号化バックアップと一致しません。');
+  const backup=decryptBackup(envelope,checked.account.private_key);
   const {freeMigrationPlan,sameProfiles,sameWashes}=await import(pathToFileURL(resolve('scripts/free-migration-plan.mjs')));
   const plan=freeMigrationPlan(backup,projectId);if(plan.digest!==integrity.backupDigest)fail('元のバックアップの照合に失敗しました。');
   async function rows(table){const all=[];let after='';while(true){const page=await query(`SELECT * FROM ${table} WHERE id>? ORDER BY id LIMIT 1000`,[after]);all.push(...page);if(page.length<1000)return all;after=page.at(-1).id;}}
