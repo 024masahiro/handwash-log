@@ -75,7 +75,9 @@ async function main(){
   const config=resolve('worker/wrangler.generated.json');
   await writeFile(config,JSON.stringify(workerConfiguration(template,{accountId:checked.accountId,databaseId:publicConfig.databaseId})),{mode:0o600});
   const exec=promisify(execFile),wrangler=resolve('node_modules/wrangler/bin/wrangler.js');
-  async function command(file,args,stage){try{await exec(process.execPath,[file,...args],{env:{...process.env,CI:'1',WRANGLER_LOG:'error'},maxBuffer:32*1024*1024});}catch{fail(stage+'に失敗しました。公開版を切り替えないでください。');}}
+  // Wrangler writes --json results through its normal logger. Keep that output
+  // available for the importer while capturing it privately in this process.
+  async function command(file,args,stage){try{await exec(process.execPath,[file,...args],{env:{...process.env,CI:'1',WRANGLER_LOG:'log',WRANGLER_WRITE_LOGS:'false'},maxBuffer:32*1024*1024});}catch{fail(stage+'に失敗しました。公開版を切り替えないでください。');}}
   if(operation==='migrate'){
    const existing=await allUsers();
    if(state==='new'){
